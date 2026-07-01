@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: mobile-shop-erp-postgres
+    environment:
+      POSTGRES_DB: mobile_shop_erp
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: erp_password
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_user -d mobile_shop_erp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - mobile_shop_erp_data:/var/lib/postgresql/data
+
+volumes:
+  mobile_shop_erp_data:

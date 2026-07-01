@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/mobile_shop_erp?options=-c%20TimeZone%3DUTC
+    username: erp_user
+    password: erp_password
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.mobileshoperp: DEBUG
+    org.springframework.web: INFO
+
+management:
+  endpoint:
+    health:
+      show-details: always

@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: mobile-shop-erp
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mobile_shop_erp}
+    username: ${DB_USERNAME:erp_user}
+    password: ${DB_PASSWORD:erp_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: MobileShopErpHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    disable-swagger-default-url: true
+
+jwt:
+  secret: ${JWT_SECRET:change-me-in-production-use-at-least-256-bit-secret-key}
+  expiration-ms: ${JWT_EXPIRATION_MS:28800000}
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+
+logging:
+  level:
+    root: INFO
+    com.mobileshoperp: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
