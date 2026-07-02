@@ -6,6 +6,7 @@ services:
       POSTGRES_DB: mobile_shop_erp
       POSTGRES_USER: erp_user
       POSTGRES_PASSWORD: erp_password
+      TZ: UTC
     ports:
       - "5433:5432"
     healthcheck:
@@ -16,6 +17,35 @@ services:
       start_period: 10s
     volumes:
       - mobile_shop_erp_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: mobile-shop-erp-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,dev
+      DB_URL: jdbc:postgresql://postgres:5432/mobile_shop_erp?options=-c%20TimeZone%3DUTC
+      DB_USERNAME: erp_user
+      DB_PASSWORD: erp_password
+      JWT_SECRET: ${JWT_SECRET:-dev-docker-jwt-secret-minimum-256-bits-long-for-hs256-algorithm}
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: mobile-shop-erp-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mobileshoperp.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   mobile_shop_erp_data:

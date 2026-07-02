@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/mobile_shop_erp?options=-c%20TimeZone%3DUTC}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.mobileshoperp: INFO
+    org.springframework.web: INFO
+
+management:
+  endpoint:
+    health:
+      show-details: always

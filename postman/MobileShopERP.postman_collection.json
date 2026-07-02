@@ -1,0 +1,512 @@
+{
+  "info": {
+    "name": "Mobile Shop ERP API",
+    "description": "Backend API collection for the Mobile Shop ERP (Phases 0-8). Every request returns the ApiResponse<T> envelope documented in admin/BACKEND_API_CONTRACT.md. Run \"Login\" first — it automatically stores accessToken/refreshToken as collection variables used by every other request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081/api/v1" },
+    { "key": "serverUrl", "value": "http://localhost:8081" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "roleId", "value": "1" },
+    { "key": "brandId", "value": "1" },
+    { "key": "categoryId", "value": "1" },
+    { "key": "attributeGroupId", "value": "1" },
+    { "key": "attributeId", "value": "1" },
+    { "key": "attributeValueId", "value": "1" },
+    { "key": "productId", "value": "" },
+    { "key": "variantId", "value": "" },
+    { "key": "imageId", "value": "" },
+    { "key": "priceId", "value": "" },
+    { "key": "customerId", "value": "" },
+    { "key": "supplierId", "value": "" },
+    { "key": "purchaseId", "value": "" },
+    { "key": "purchaseItemId", "value": "" },
+    { "key": "stockId", "value": "" },
+    { "key": "saleId", "value": "" },
+    { "key": "saleItemId", "value": "" },
+    { "key": "paymentId", "value": "" },
+    { "key": "repairId", "value": "" },
+    { "key": "warrantyId", "value": "" },
+    { "key": "expenseId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"9999999999\",\n  \"password\": \"Admin@123456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.success) {",
+                  "  pm.collectionVariables.set('accessToken', body.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', body.data.refreshToken);",
+                  "  pm.collectionVariables.set('userId', body.data.user.id);",
+                  "}",
+                  "pm.test('Login succeeded', () => body.success === true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.success) {",
+                  "  pm.collectionVariables.set('accessToken', body.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', body.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users (paginated)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/users?page=0&size=20&sort=createdAt,desc", "host": ["{{baseUrl}}"], "path": ["users"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }, { "key": "sort", "value": "createdAt,desc" }] } }
+        },
+        {
+          "name": "Get User by Id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] } }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"roleId\": {{roleId}},\n  \"firstName\": \"Staff\",\n  \"lastName\": \"User\",\n  \"mobile\": \"9000000001\",\n  \"email\": \"staff@example.com\",\n  \"password\": \"Staff@123456\"\n}" },
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Staff\",\n  \"lastName\": \"Updated\",\n  \"active\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Deactivate User (soft delete)",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] } }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        { "name": "List Roles", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] } } },
+        { "name": "Get Role by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/roles/{{roleId}}", "host": ["{{baseUrl}}"], "path": ["roles", "{{roleId}}"] } } },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"CASHIER\",\n  \"description\": \"Cashier role\",\n  \"active\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] }
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\",\n  \"active\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/roles/{{roleId}}", "host": ["{{baseUrl}}"], "path": ["roles", "{{roleId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        { "name": "Get Settings", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/settings", "host": ["{{baseUrl}}"], "path": ["settings"] } } },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"companyName\": \"Mobile Shop ERP\",\n  \"ownerName\": \"Owner Name\",\n  \"gstNumber\": \"22AAAAA0000A1Z5\",\n  \"mobile\": \"9999999999\",\n  \"email\": \"shop@example.com\",\n  \"address\": \"123 Main Street\",\n  \"invoicePrefix\": \"INV\"\n}" },
+            "url": { "raw": "{{baseUrl}}/settings", "host": ["{{baseUrl}}"], "path": ["settings"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product Catalog",
+      "item": [
+        {
+          "name": "Brand",
+          "item": [
+            { "name": "List Brands", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/brands?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["brands"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Brand by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/brands/{{brandId}}", "host": ["{{baseUrl}}"], "path": ["brands", "{{brandId}}"] } } },
+            { "name": "Create Brand", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Samsung\",\n  \"description\": \"Samsung Electronics\",\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/brands", "host": ["{{baseUrl}}"], "path": ["brands"] } } },
+            { "name": "Update Brand", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Samsung\",\n  \"description\": \"Updated description\",\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/brands/{{brandId}}", "host": ["{{baseUrl}}"], "path": ["brands", "{{brandId}}"] } } },
+            { "name": "Delete Brand", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/brands/{{brandId}}", "host": ["{{baseUrl}}"], "path": ["brands", "{{brandId}}"] } } }
+          ]
+        },
+        {
+          "name": "Category",
+          "item": [
+            { "name": "List Categories", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/categories?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["categories"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Category by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["categories", "{{categoryId}}"] } } },
+            { "name": "Create Category", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"parentId\": null,\n  \"name\": \"Mobiles\",\n  \"description\": \"Mobile phones\",\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] } } },
+            { "name": "Update Category", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Mobiles\",\n  \"description\": \"Updated\",\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["categories", "{{categoryId}}"] } } },
+            { "name": "Delete Category", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["categories", "{{categoryId}}"] } } }
+          ]
+        },
+        {
+          "name": "Attribute Group",
+          "item": [
+            { "name": "List Attribute Groups", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/attribute-groups", "host": ["{{baseUrl}}"], "path": ["attribute-groups"] } } },
+            { "name": "Create Attribute Group", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Memory\"\n}" }, "url": { "raw": "{{baseUrl}}/attribute-groups", "host": ["{{baseUrl}}"], "path": ["attribute-groups"] } } },
+            { "name": "Update Attribute Group", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Memory\"\n}" }, "url": { "raw": "{{baseUrl}}/attribute-groups/{{attributeGroupId}}", "host": ["{{baseUrl}}"], "path": ["attribute-groups", "{{attributeGroupId}}"] } } }
+          ]
+        },
+        {
+          "name": "Attribute",
+          "item": [
+            { "name": "List Attributes", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/attributes", "host": ["{{baseUrl}}"], "path": ["attributes"] } } },
+            { "name": "Create Attribute", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"attributeGroupId\": {{attributeGroupId}},\n  \"name\": \"RAM\",\n  \"attributeType\": \"VARIANT\"\n}" }, "url": { "raw": "{{baseUrl}}/attributes", "host": ["{{baseUrl}}"], "path": ["attributes"] } } },
+            { "name": "Update Attribute", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"RAM\",\n  \"attributeType\": \"VARIANT\"\n}" }, "url": { "raw": "{{baseUrl}}/attributes/{{attributeId}}", "host": ["{{baseUrl}}"], "path": ["attributes", "{{attributeId}}"] } } }
+          ]
+        },
+        {
+          "name": "Attribute Value",
+          "item": [
+            { "name": "List Attribute Values", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/attribute-values", "host": ["{{baseUrl}}"], "path": ["attribute-values"] } } },
+            { "name": "Create Attribute Value", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"attributeId\": {{attributeId}},\n  \"value\": \"8GB\",\n  \"displayOrder\": 1,\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/attribute-values", "host": ["{{baseUrl}}"], "path": ["attribute-values"] } } },
+            { "name": "Update Attribute Value", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"value\": \"8GB\",\n  \"displayOrder\": 1,\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/attribute-values/{{attributeValueId}}", "host": ["{{baseUrl}}"], "path": ["attribute-values", "{{attributeValueId}}"] } } }
+          ]
+        },
+        {
+          "name": "Product",
+          "item": [
+            { "name": "List Products", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/products?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["products"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Product by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}"] } } },
+            {
+              "name": "Create Product",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"brandId\": {{brandId}},\n  \"categoryId\": {{categoryId}},\n  \"name\": \"Galaxy S25\",\n  \"model\": \"SM-S931\",\n  \"hsnCode\": \"8517\",\n  \"description\": \"Flagship smartphone\",\n  \"active\": true\n}" },
+                "url": { "raw": "{{baseUrl}}/products", "host": ["{{baseUrl}}"], "path": ["products"] }
+              },
+              "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('productId', body.data.id);"] } }]
+            },
+            { "name": "Update Product", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Galaxy S25\",\n  \"description\": \"Updated description\",\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}"] } } },
+            { "name": "Delete Product", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}"] } } }
+          ]
+        },
+        {
+          "name": "Product Variant",
+          "item": [
+            { "name": "List Variants", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/product-variants?productId={{productId}}&page=0&size=20", "host": ["{{baseUrl}}"], "path": ["product-variants"], "query": [{ "key": "productId", "value": "{{productId}}" }, { "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Variant by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/product-variants/{{variantId}}", "host": ["{{baseUrl}}"], "path": ["product-variants", "{{variantId}}"] } } },
+            {
+              "name": "Create Variant",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"sku\": \"GS25-BLK-256\",\n  \"barcode\": \"8901234567890\",\n  \"active\": true\n}" },
+                "url": { "raw": "{{baseUrl}}/product-variants", "host": ["{{baseUrl}}"], "path": ["product-variants"] }
+              },
+              "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('variantId', body.data.id);"] } }]
+            },
+            { "name": "Update Variant", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"barcode\": \"8901234567890\",\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/product-variants/{{variantId}}", "host": ["{{baseUrl}}"], "path": ["product-variants", "{{variantId}}"] } } }
+          ]
+        },
+        {
+          "name": "Variant Attribute",
+          "item": [
+            { "name": "List Variant Attributes", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/variant-attributes?variantId={{variantId}}", "host": ["{{baseUrl}}"], "path": ["variant-attributes"], "query": [{ "key": "variantId", "value": "{{variantId}}" }] } } },
+            { "name": "Assign Variant Attribute", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"variantId\": \"{{variantId}}\",\n  \"attributeValueId\": {{attributeValueId}}\n}" }, "url": { "raw": "{{baseUrl}}/variant-attributes", "host": ["{{baseUrl}}"], "path": ["variant-attributes"] } } }
+          ]
+        },
+        {
+          "name": "Product Image",
+          "item": [
+            { "name": "List Images", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/variants/{{variantId}}/images", "host": ["{{baseUrl}}"], "path": ["variants", "{{variantId}}", "images"] } } },
+            { "name": "Add Image", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"imageUrl\": \"https://cdn.example.com/products/gs25-black.jpg\",\n  \"displayOrder\": 1\n}" }, "url": { "raw": "{{baseUrl}}/variants/{{variantId}}/images", "host": ["{{baseUrl}}"], "path": ["variants", "{{variantId}}", "images"] } } },
+            { "name": "Update Image", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"displayOrder\": 2\n}" }, "url": { "raw": "{{baseUrl}}/variants/{{variantId}}/images/{{imageId}}", "host": ["{{baseUrl}}"], "path": ["variants", "{{variantId}}", "images", "{{imageId}}"] } } },
+            { "name": "Delete Image", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/variants/{{variantId}}/images/{{imageId}}", "host": ["{{baseUrl}}"], "path": ["variants", "{{variantId}}", "images", "{{imageId}}"] } } }
+          ]
+        },
+        {
+          "name": "Product Price",
+          "item": [
+            { "name": "List Prices", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/product-prices?variantId={{variantId}}", "host": ["{{baseUrl}}"], "path": ["product-prices"], "query": [{ "key": "variantId", "value": "{{variantId}}" }] } } },
+            { "name": "Create Price (never overwrite — new record)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"variantId\": \"{{variantId}}\",\n  \"priceType\": \"RETAIL\",\n  \"price\": 74999.00,\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": null,\n  \"active\": true\n}" }, "url": { "raw": "{{baseUrl}}/product-prices", "host": ["{{baseUrl}}"], "path": ["product-prices"] } } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Business",
+      "item": [
+        {
+          "name": "Customer",
+          "item": [
+            { "name": "List Customers", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/customers?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["customers"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Customer by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["customers", "{{customerId}}"] } } },
+            {
+              "name": "Create Customer",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ravi Kumar\",\n  \"mobile\": \"9812345670\",\n  \"email\": \"ravi@example.com\",\n  \"address\": \"MG Road\",\n  \"gstNumber\": null\n}" },
+                "url": { "raw": "{{baseUrl}}/customers", "host": ["{{baseUrl}}"], "path": ["customers"] }
+              },
+              "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('customerId', body.data.id);"] } }]
+            },
+            { "name": "Update Customer", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"address\": \"Updated address\"\n}" }, "url": { "raw": "{{baseUrl}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["customers", "{{customerId}}"] } } },
+            { "name": "Delete Customer", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["customers", "{{customerId}}"] } } }
+          ]
+        },
+        {
+          "name": "Supplier",
+          "item": [
+            { "name": "List Suppliers", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/suppliers?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["suppliers"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Supplier by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/suppliers/{{supplierId}}", "host": ["{{baseUrl}}"], "path": ["suppliers", "{{supplierId}}"] } } },
+            {
+              "name": "Create Supplier",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"supplierName\": \"ABC Distributors\",\n  \"contactPerson\": \"Suresh\",\n  \"mobile\": \"9823456780\",\n  \"email\": \"abc@example.com\",\n  \"gstNumber\": \"22AAAAA0000A1Z5\",\n  \"address\": \"Industrial Area\"\n}" },
+                "url": { "raw": "{{baseUrl}}/suppliers", "host": ["{{baseUrl}}"], "path": ["suppliers"] }
+              },
+              "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('supplierId', body.data.id);"] } }]
+            },
+            { "name": "Update Supplier", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"contactPerson\": \"Updated Contact\"\n}" }, "url": { "raw": "{{baseUrl}}/suppliers/{{supplierId}}", "host": ["{{baseUrl}}"], "path": ["suppliers", "{{supplierId}}"] } } },
+            { "name": "Delete Supplier", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/suppliers/{{supplierId}}", "host": ["{{baseUrl}}"], "path": ["suppliers", "{{supplierId}}"] } } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Purchase",
+      "item": [
+        { "name": "List Purchases", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/purchases?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["purchases"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+        { "name": "Get Purchase by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/purchases/{{purchaseId}}", "host": ["{{baseUrl}}"], "path": ["purchases", "{{purchaseId}}"] } } },
+        {
+          "name": "Create Purchase (DRAFT)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"supplierId\": \"{{supplierId}}\",\n  \"invoiceNumber\": \"PUR-0001\",\n  \"invoiceDate\": \"2026-01-01\",\n  \"totalAmount\": 50000.00,\n  \"paymentStatus\": \"PENDING\"\n}" },
+            "url": { "raw": "{{baseUrl}}/purchases", "host": ["{{baseUrl}}"], "path": ["purchases"] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('purchaseId', body.data.id);"] } }]
+        },
+        { "name": "Update Purchase", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"totalAmount\": 50000.00\n}" }, "url": { "raw": "{{baseUrl}}/purchases/{{purchaseId}}", "host": ["{{baseUrl}}"], "path": ["purchases", "{{purchaseId}}"] } } },
+        {
+          "name": "Add Purchase Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"variantId\": \"{{variantId}}\",\n  \"quantity\": 5,\n  \"purchasePrice\": 45000.00,\n  \"taxAmount\": 2250.00\n}" },
+            "url": { "raw": "{{baseUrl}}/purchases/{{purchaseId}}/items", "host": ["{{baseUrl}}"], "path": ["purchases", "{{purchaseId}}", "items"] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('purchaseItemId', body.data.id);"] } }]
+        },
+        { "name": "Update Purchase Item", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"quantity\": 5,\n  \"purchasePrice\": 45000.00\n}" }, "url": { "raw": "{{baseUrl}}/purchases/{{purchaseId}}/items/{{purchaseItemId}}", "host": ["{{baseUrl}}"], "path": ["purchases", "{{purchaseId}}", "items", "{{purchaseItemId}}"] } } },
+        { "name": "Receive Purchase (creates Stock)", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/purchases/{{purchaseId}}/receive", "host": ["{{baseUrl}}"], "path": ["purchases", "{{purchaseId}}", "receive"] } } },
+        { "name": "Cancel Purchase", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/purchases/{{purchaseId}}/cancel", "host": ["{{baseUrl}}"], "path": ["purchases", "{{purchaseId}}", "cancel"] } } }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        { "name": "List Stock", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/stock?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["stock"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+        { "name": "Get Stock by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/stock/{{stockId}}", "host": ["{{baseUrl}}"], "path": ["stock", "{{stockId}}"] } } },
+        { "name": "Get Stock by IMEI", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/stock/by-imei/123456789012345", "host": ["{{baseUrl}}"], "path": ["stock", "by-imei", "123456789012345"] } } },
+        { "name": "Update Stock Metadata (IMEI/serial only)", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"imei\": \"123456789012345\",\n  \"serialNumber\": \"SN-0001\"\n}" }, "url": { "raw": "{{baseUrl}}/stock/{{stockId}}", "host": ["{{baseUrl}}"], "path": ["stock", "{{stockId}}"] } } },
+        {
+          "name": "Update Stock Status (dedicated endpoint)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"newStatus\": \"DAMAGED\",\n  \"reason\": \"Screen cracked during handling\",\n  \"referenceType\": null,\n  \"referenceId\": null\n}" },
+            "url": { "raw": "{{baseUrl}}/stock/{{stockId}}/status", "host": ["{{baseUrl}}"], "path": ["stock", "{{stockId}}", "status"] }
+          }
+        },
+        { "name": "List Stock Movements", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/stock-movements?stockId={{stockId}}&page=0&size=20", "host": ["{{baseUrl}}"], "path": ["stock-movements"], "query": [{ "key": "stockId", "value": "{{stockId}}" }, { "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } }
+      ]
+    },
+    {
+      "name": "Sales",
+      "item": [
+        { "name": "List Sales", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/sales?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["sales"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+        { "name": "Get Sale by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/sales/{{saleId}}", "host": ["{{baseUrl}}"], "path": ["sales", "{{saleId}}"] } } },
+        {
+          "name": "Create Sale (DRAFT)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"invoiceNumber\": \"INV-0001\",\n  \"invoiceDate\": \"2026-01-05\",\n  \"totalAmount\": 74999.00,\n  \"paymentStatus\": \"PENDING\"\n}" },
+            "url": { "raw": "{{baseUrl}}/sales", "host": ["{{baseUrl}}"], "path": ["sales"] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('saleId', body.data.id);"] } }]
+        },
+        { "name": "Update Sale", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"totalAmount\": 74999.00\n}" }, "url": { "raw": "{{baseUrl}}/sales/{{saleId}}", "host": ["{{baseUrl}}"], "path": ["sales", "{{saleId}}"] } } },
+        {
+          "name": "Add Sale Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"stockId\": \"{{stockId}}\",\n  \"sellingPrice\": 74999.00,\n  \"discount\": 0,\n  \"taxAmount\": 3750.00\n}" },
+            "url": { "raw": "{{baseUrl}}/sales/{{saleId}}/items", "host": ["{{baseUrl}}"], "path": ["sales", "{{saleId}}", "items"] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('saleItemId', body.data.id);"] } }]
+        },
+        { "name": "Update Sale Item", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"sellingPrice\": 74999.00\n}" }, "url": { "raw": "{{baseUrl}}/sales/{{saleId}}/items/{{saleItemId}}", "host": ["{{baseUrl}}"], "path": ["sales", "{{saleId}}", "items", "{{saleItemId}}"] } } },
+        {
+          "name": "Finalize Sale (stock -> SOLD, warranty created)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"initialPayment\": {\n    \"paymentMode\": \"CASH\",\n    \"amount\": 74999.00,\n    \"transactionNumber\": null\n  }\n}" },
+            "url": { "raw": "{{baseUrl}}/sales/{{saleId}}/finalize", "host": ["{{baseUrl}}"], "path": ["sales", "{{saleId}}", "finalize"] }
+          }
+        },
+        { "name": "Cancel Sale", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/sales/{{saleId}}/cancel", "host": ["{{baseUrl}}"], "path": ["sales", "{{saleId}}", "cancel"] } } }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Record Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"referenceType\": \"SALE\",\n  \"referenceId\": \"{{saleId}}\",\n  \"paymentMode\": \"CASH\",\n  \"amount\": 10000.00,\n  \"transactionNumber\": null,\n  \"paymentDate\": null\n}" },
+            "url": { "raw": "{{baseUrl}}/payments", "host": ["{{baseUrl}}"], "path": ["payments"] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('paymentId', body.data.id);"] } }]
+        },
+        { "name": "Get Payment History", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/payments?referenceType=SALE&referenceId={{saleId}}", "host": ["{{baseUrl}}"], "path": ["payments"], "query": [{ "key": "referenceType", "value": "SALE" }, { "key": "referenceId", "value": "{{saleId}}" }] } } },
+        { "name": "Get Payment Balance", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/payments/balance?referenceType=SALE&referenceId={{saleId}}", "host": ["{{baseUrl}}"], "path": ["payments", "balance"], "query": [{ "key": "referenceType", "value": "SALE" }, { "key": "referenceId", "value": "{{saleId}}" }] } } },
+        { "name": "Get Payment by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/payments/{{paymentId}}", "host": ["{{baseUrl}}"], "path": ["payments", "{{paymentId}}"] } } }
+      ]
+    },
+    {
+      "name": "Service",
+      "item": [
+        {
+          "name": "Repair",
+          "item": [
+            { "name": "List Repairs", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/repairs?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["repairs"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Repair by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/repairs/{{repairId}}", "host": ["{{baseUrl}}"], "path": ["repairs", "{{repairId}}"] } } },
+            {
+              "name": "Create Repair",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"stockId\": null,\n  \"customerId\": \"{{customerId}}\",\n  \"issueDescription\": \"Screen replacement\",\n  \"estimatedCost\": 3500.00\n}" },
+                "url": { "raw": "{{baseUrl}}/repairs", "host": ["{{baseUrl}}"], "path": ["repairs"] }
+              },
+              "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('repairId', body.data.id);"] } }]
+            },
+            { "name": "Update Repair", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"actualCost\": 3500.00\n}" }, "url": { "raw": "{{baseUrl}}/repairs/{{repairId}}", "host": ["{{baseUrl}}"], "path": ["repairs", "{{repairId}}"] } } },
+            { "name": "Update Repair Status", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"repairStatus\": \"COMPLETED\",\n  \"reason\": \"Repaired and tested\"\n}" }, "url": { "raw": "{{baseUrl}}/repairs/{{repairId}}/status", "host": ["{{baseUrl}}"], "path": ["repairs", "{{repairId}}", "status"] } } }
+          ]
+        },
+        {
+          "name": "Warranty",
+          "item": [
+            { "name": "List Warranties", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/warranties?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["warranties"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+            { "name": "Get Warranty by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/warranties/{{warrantyId}}", "host": ["{{baseUrl}}"], "path": ["warranties", "{{warrantyId}}"] } } },
+            { "name": "Create Warranty (manual — usually auto-created on sale finalize)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"saleItemId\": \"{{saleItemId}}\",\n  \"warrantyMonths\": 12\n}" }, "url": { "raw": "{{baseUrl}}/warranties", "host": ["{{baseUrl}}"], "path": ["warranties"] } } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        { "name": "List Expenses", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/expenses?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["expenses"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+        { "name": "Get Expense by Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/expenses/{{expenseId}}", "host": ["{{baseUrl}}"], "path": ["expenses", "{{expenseId}}"] } } },
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Electricity Bill\",\n  \"amount\": 4500.00,\n  \"expenseDate\": \"2026-01-01\",\n  \"remarks\": \"January bill\"\n}" },
+            "url": { "raw": "{{baseUrl}}/expenses", "host": ["{{baseUrl}}"], "path": ["expenses"] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.success) pm.collectionVariables.set('expenseId', body.data.id);"] } }]
+        },
+        { "name": "Update Expense", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"amount\": 4600.00\n}" }, "url": { "raw": "{{baseUrl}}/expenses/{{expenseId}}", "host": ["{{baseUrl}}"], "path": ["expenses", "{{expenseId}}"] } } },
+        { "name": "Delete Expense", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/expenses/{{expenseId}}", "host": ["{{baseUrl}}"], "path": ["expenses", "{{expenseId}}"] } } }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        { "name": "List Audit Logs", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/audit-logs?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["audit-logs"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        { "name": "Sales Summary", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/sales/summary?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "sales", "summary"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Sales (paginated)", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/sales?fromDate=2026-01-01&toDate=2026-01-31&page=0&size=20", "host": ["{{baseUrl}}"], "path": ["reports", "sales"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }, { "key": "page", "value": "0" }, { "key": "size", "value": "20" }] } } },
+        { "name": "Sales by Customer", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/sales/by-customer?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "sales", "by-customer"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Purchases Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/purchases?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "purchases"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Stock / Inventory Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/stock", "host": ["{{baseUrl}}"], "path": ["reports", "stock"] } } },
+        { "name": "Customer Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/customers?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "customers"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Supplier Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/suppliers?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "suppliers"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Repair Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/repairs?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "repairs"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Warranty Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/warranty?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "warranty"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Expense Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/expenses?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "expenses"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } },
+        { "name": "Profit & Loss Report", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/reports/profit?fromDate=2026-01-01&toDate=2026-01-31", "host": ["{{baseUrl}}"], "path": ["reports", "profit"], "query": [{ "key": "fromDate", "value": "2026-01-01" }, { "key": "toDate", "value": "2026-01-31" }] } } }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        { "name": "Actuator Health", "request": { "auth": { "type": "noauth" }, "method": "GET", "url": { "raw": "{{serverUrl}}/actuator/health", "host": ["{{serverUrl}}"], "path": ["actuator", "health"] } } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+
+jwt:
+  secret: integration-test-secret-key-minimum-256-bits-required-for-hmac-sha256
+
+logging:
+  level:
+    root: WARN
+    com.mobileshoperp: INFO

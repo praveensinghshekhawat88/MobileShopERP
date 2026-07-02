@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Frontend documentation hardening:** Renumbered `admin/` docs to canonical `01`–`09` order; created `admin/README.md` (index/ownership table), `admin/TESTING.md`, and `admin/BACKEND_API_CONTRACT.md` (single source of truth for roles, JWT flow, `ApiResponse`, error codes, pagination); aligned roles (ADMIN/STAFF), pagination (0-based, `sort=field,dir`), and validation errors (400, not 422) with the actual backend; resolved module folder structure ambiguity (flat modules); removed duplicated rules across frontend docs by making `01_AGENTS.md` the policy owner
+- **Phase 9 (Deployment):** Postman collection covering every endpoint (`postman/MobileShopERP.postman_collection.json`) with `local`/`staging` environment files; CI job validating the Docker image builds (`docker-image` job in `.github/workflows/ci.yml`); post-deployment smoke-test script (`scripts/smoke-test.sh`) covering health, auth, authenticated access, and refresh-token-rejection
+- **Enterprise hardening — security:** CORS (`CorsConfig`), JSON `401`/`403` handlers (`JwtAuthenticationEntryPoint`, `JwtAccessDeniedHandler`), refresh-token rejection on Bearer auth, active/non-deleted user validation in `JwtAuthenticationFilter`, `AuthenticatedUser` principal, production JWT secret validation (`ProductionSecurityValidator`)
+- **Enterprise hardening — stock lifecycle:** `PUT /api/v1/stock/{id}` limited to IMEI/serial metadata; `PUT /api/v1/stock/{id}/status` routes through `StockStatusService`
+- **Enterprise hardening — audit:** `JpaAuditingConfig` resolves `created_by` / `updated_by` from JWT user id
+- **Enterprise hardening — users:** Paginated active-only user list; soft-deleted users excluded from get/list
+- **Integration tests:** Testcontainers PostgreSQL + `EnterpriseIntegrationTest` (auth, purchase receive, sale finalize, stock status, audit fields)
+- **Unit tests:** `UserServiceTest`, `JwtAuthenticationFilterTest`; extended `JwtUtilTest` for refresh vs access tokens
 - Initial repository structure
 - Documentation suite (`docs/01`–`05`, `AGENTS.md`, `ARCHITECTURE.md`, `PROJECT_CONTEXT.md`)
 - Phase task trackers (`tasks/phase-00` through `phase-10`) with globally unique task IDs (`Pxx-Txxx`)

@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    show-sql: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    root: INFO
+    com.mobileshoperp: INFO
+    org.springframework.security: WARN
+
+management:
+  endpoint:
+    health:
+      show-details: when_authorized
