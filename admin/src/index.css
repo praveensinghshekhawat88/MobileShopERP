@@ -1,0 +1,26 @@
+/* Global reset — visual styling otherwise flows entirely from the MUI theme
+   (see theme/theme.ts) and MUI's own CssBaseline. Never add component styles
+   here — see 01_AGENTS.md § Theme Rules. */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

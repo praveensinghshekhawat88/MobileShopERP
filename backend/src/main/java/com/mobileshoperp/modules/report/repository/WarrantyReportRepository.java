@@ -63,11 +63,11 @@ public class WarrantyReportRepository {
                 WHERE w.deleted_at IS NULL
                   AND si.deleted_at IS NULL
                   AND s.deleted_at IS NULL
-                  AND (:claimStatus IS NULL OR w.claim_status = :claimStatus)
-                  AND (:customerId IS NULL OR s.customer_id = :customerId)
-                  AND (:saleId IS NULL OR s.id = :saleId)
-                  AND (:fromDate IS NULL OR w.end_date >= :fromDate)
-                  AND (:toDate IS NULL OR w.end_date <= :toDate)
+                  AND (CAST(:claimStatus AS varchar) IS NULL OR w.claim_status = CAST(:claimStatus AS varchar))
+                  AND (CAST(:customerId AS uuid) IS NULL OR s.customer_id = CAST(:customerId AS uuid))
+                  AND (CAST(:saleId AS uuid) IS NULL OR s.id = CAST(:saleId AS uuid))
+                  AND (CAST(:fromDate AS date) IS NULL OR w.end_date >= CAST(:fromDate AS date))
+                  AND (CAST(:toDate AS date) IS NULL OR w.end_date <= CAST(:toDate AS date))
                 """;
 
         Long total = jdbcTemplate.queryForObject(

@@ -25,11 +25,14 @@ docker compose up -d --build
 
 | Service   | URL |
 |-----------|-----|
+| Admin UI  | http://localhost:3000 |
 | API       | http://localhost:8081 |
 | Swagger   | http://localhost:8081/swagger-ui.html |
 | Health    | http://localhost:8081/actuator/health |
 | PostgreSQL| localhost:5433 |
 | pgAdmin   | http://localhost:5050 |
+
+The admin container serves the React build on port **3000** and reverse-proxies `/api/` to the backend. Sign in at http://localhost:3000 — no separate `.env` is required for Docker Compose.
 
 Default dev admin (created by `DevBootstrapRunner` when `dev` profile is active):
 
@@ -100,6 +103,19 @@ GitHub Actions workflow `.github/workflows/ci.yml`:
 ```bash
 cd backend
 docker build -t mobile-shop-erp-backend .
+```
+
+## Build Admin Image Only
+
+```bash
+cd admin
+docker build -t mobile-shop-erp-admin .
+```
+
+The admin image bakes `VITE_API_BASE_URL=/api/v1` so the browser uses same-origin requests; nginx proxies them to the backend. Override at build time if needed:
+
+```bash
+docker build --build-arg VITE_API_BASE_URL=/api/v1 -t mobile-shop-erp-admin .
 ```
 
 Run standalone (requires external PostgreSQL):

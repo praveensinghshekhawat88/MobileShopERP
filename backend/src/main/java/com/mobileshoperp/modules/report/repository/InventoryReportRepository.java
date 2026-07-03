@@ -29,8 +29,8 @@ public class InventoryReportRepository {
         String filterClause =
                 """
                 WHERE st.deleted_at IS NULL
-                  AND (:variantId IS NULL OR st.variant_id = :variantId)
-                  AND (:stockStatus IS NULL OR st.stock_status = :stockStatus)
+                  AND (CAST(:variantId AS uuid) IS NULL OR st.variant_id = CAST(:variantId AS uuid))
+                  AND (CAST(:stockStatus AS varchar) IS NULL OR st.stock_status = CAST(:stockStatus AS varchar))
                 """;
 
         Long total = jdbcTemplate.queryForObject(
@@ -148,14 +148,14 @@ public class InventoryReportRepository {
         String filterClause =
                 """
                 WHERE sm.deleted_at IS NULL
-                  AND (:stockId IS NULL OR sm.stock_id = :stockId)
-                  AND (:variantId IS NULL OR st.variant_id = :variantId)
-                  AND (:imei IS NULL OR st.imei ILIKE :imei)
-                  AND (:referenceType IS NULL OR sm.reference_type = :referenceType)
-                  AND (:referenceId IS NULL OR sm.reference_id = :referenceId)
-                  AND (:movementType IS NULL OR sm.movement_type = :movementType)
-                  AND (:from IS NULL OR sm.created_at >= :from)
-                  AND (:to IS NULL OR sm.created_at <= :to)
+                  AND (CAST(:stockId AS uuid) IS NULL OR sm.stock_id = CAST(:stockId AS uuid))
+                  AND (CAST(:variantId AS uuid) IS NULL OR st.variant_id = CAST(:variantId AS uuid))
+                  AND (CAST(:imei AS varchar) IS NULL OR st.imei ILIKE CAST(:imei AS varchar))
+                  AND (CAST(:referenceType AS varchar) IS NULL OR sm.reference_type = CAST(:referenceType AS varchar))
+                  AND (CAST(:referenceId AS uuid) IS NULL OR sm.reference_id = CAST(:referenceId AS uuid))
+                  AND (CAST(:movementType AS varchar) IS NULL OR sm.movement_type = CAST(:movementType AS varchar))
+                  AND (CAST(:from AS timestamptz) IS NULL OR sm.created_at >= CAST(:from AS timestamptz))
+                  AND (CAST(:to AS timestamptz) IS NULL OR sm.created_at <= CAST(:to AS timestamptz))
                 """;
 
         Long total = jdbcTemplate.queryForObject(

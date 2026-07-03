@@ -24,22 +24,48 @@ services:
       dockerfile: Dockerfile
     container_name: mobile-shop-erp-backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker,dev
+      # Order matters: Spring Boot lets the LAST profile in this list win on
+      # conflicting keys. "docker" must be last so its container-network
+      # datasource URL (postgres:5432) and container port (8080) override
+      # "dev"'s host-facing values (localhost:5433, port 8081), which are
+      # meant for running the backend directly on the host against the
+      # dockerized Postgres — not for running the backend itself in a container.
+      SPRING_PROFILES_ACTIVE: dev,docker
       DB_URL: jdbc:postgresql://postgres:5432/mobile_shop_erp?options=-c%20TimeZone%3DUTC
       DB_USERNAME: erp_user
       DB_PASSWORD: erp_password
       JWT_SECRET: ${JWT_SECRET:-dev-docker-jwt-secret-minimum-256-bits-long-for-hs256-algorithm}
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8081
     ports:
       - "8081:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     depends_on:
       postgres:
+        condition: service_healthy
+
+  admin:
+    build:
+      context: ../admin
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    container_name: mobile-shop-erp-admin
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
         condition: service_healthy
 
   pgadmin:
     image: dpage/pgadmin4:8
     container_name: mobile-shop-erp-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@mobileshoperp.local
+      PGADMIN_DEFAULT_EMAIL: admin@mobileshoperp.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"

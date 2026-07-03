@@ -69,10 +69,10 @@ Pure presentational components with no logic are exempt from mandatory unit test
 
 Aligned with `04_TASKS.md` phase order — write tests as each phase is implemented, not retroactively:
 
-1. Authentication (login, refresh, logout, protected route redirect, role-based navigation)
-2. Purchase → Stock flow
-3. Sales → Payment → Warranty flow
-4. Inventory (stock status transitions via the dedicated status endpoint)
+1. Authentication (login, refresh, logout, protected route redirect, role-based navigation) — **done** (`authValidation`, `authService`, `ProtectedRoute`, `LoginPage`, `e2e/auth-login.spec.ts`)
+2. Purchase → Stock flow — **done** (`receivePurchaseValidation`, `purchaseService`, `useReceivePurchase`, `ReceivePurchaseDialog`, `e2e/purchase-to-stock.spec.ts`)
+3. Sales → Payment → Warranty flow — **done** (`paymentValidation`, `warrantyValidation`, `saleService`, `paymentService`, `warrantyService`, mutation hooks, `PaymentFormDialog`, `WarrantyFormDialog`, `e2e/sale-payment-warranty.spec.ts`)
+4. Inventory (stock status transitions via the dedicated status endpoint) — **done** (`stockStatusValidation`, `stockService`, `useUpdateStockStatus`, `StockStatusFormDialog`, `e2e/stock-status-transition.spec.ts`)
 
 These four flows are the frontend equivalent of the backend's own hardened integration test suite (`EnterpriseIntegrationTest`) and must be covered by E2E tests before any release build.
 

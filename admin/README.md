@@ -1,8 +1,6 @@
 # Mobile Shop ERP — React Admin Panel Documentation
 
-This folder is the complete documentation set for the React Admin Panel frontend of the Mobile Shop ERP. The backend (Phases 0–8) is implemented, hardened, and frozen — this documentation describes how the frontend must be built against it.
-
-No React code exists yet. These documents are the specification Cursor and developers must follow before writing any frontend code.
+This folder contains the React Admin Panel frontend and its documentation for Mobile Shop ERP. The backend (Phases 0–8) is implemented, hardened, and frozen — the admin UI is built against [BACKEND_API_CONTRACT.md](BACKEND_API_CONTRACT.md).
 
 ---
 
@@ -45,6 +43,43 @@ If you find the same rule stated differently in two documents, `01_AGENTS.md` wi
 
 ## Status
 
-All 9 numbered documents plus `BACKEND_API_CONTRACT.md` and `TESTING.md` have completed a Documentation Hardening Pass (see `DOCUMENTATION_HARDENING_REPORT` delivered in the corresponding chat) that resolved every Critical (P1) and High (P2) finding from the Frontend Documentation Audit. Medium/Low findings were intentionally left open and are not blockers for starting Phase 00.
+All admin frontend phases **P00–P11** in [04_TASKS.md](04_TASKS.md) are **Completed**. The app lives under `admin/src/` and can be run locally (`npm run dev` on port 3000) or via Docker Compose (see [docs/09_Deployment.md](../docs/09_Deployment.md)).
 
-Do not add new documents, rename existing ones, or change the numbering without an explicit decision — this read order and numbering is now LOCKED.
+### Local development (backend in Docker, admin on host)
+
+```bash
+# Terminal 1 — from docker/
+docker compose up -d postgres backend
+
+# Terminal 2 — from admin/
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Use `.env` with `VITE_API_BASE_URL=http://localhost:8081/api/v1`.
+
+### Full stack in Docker
+
+```bash
+cd docker
+docker compose up -d --build
+```
+
+Open http://localhost:3000 — login with dev admin `9999999999` / `Admin@123456`.
+
+### Tests
+
+```bash
+npm run test          # Vitest unit/component tests (MSW)
+npm run test:e2e      # Playwright auth flow (builds preview server)
+npm run verify        # typecheck + lint + unit tests + production build
+```
+
+See [TESTING.md](TESTING.md) for coverage priorities and conventions.
+
+---
+
+## Documentation hardening (historical)
+
+All 9 numbered documents plus `BACKEND_API_CONTRACT.md` and `TESTING.md` completed a Documentation Hardening Pass before Phase 00 implementation.

@@ -34,8 +34,8 @@ public class SalesReportRepository {
                 WHERE s.deleted_at IS NULL
                   AND s.invoice_date >= :fromDate
                   AND s.invoice_date <= :toDate
-                  AND (:customerId IS NULL OR s.customer_id = :customerId)
-                  AND (:paymentStatus IS NULL OR s.payment_status = :paymentStatus)
+                  AND (CAST(:customerId AS uuid) IS NULL OR s.customer_id = CAST(:customerId AS uuid))
+                  AND (CAST(:paymentStatus AS varchar) IS NULL OR s.payment_status = CAST(:paymentStatus AS varchar))
                 """;
 
         Long total = jdbcTemplate.queryForObject(

@@ -61,16 +61,16 @@ public class RepairReportRepository {
 
         String dateFilter =
                 """
-                  AND (:fromDate IS NULL OR :toDate IS NULL OR (
+                  AND (CAST(:fromDate AS date) IS NULL OR CAST(:toDate AS date) IS NULL OR (
                       CASE WHEN r.repair_status = 'DELIVERED' THEN r.updated_at::date ELSE r.created_at::date END
-                      BETWEEN :fromDate AND :toDate
+                      BETWEEN CAST(:fromDate AS date) AND CAST(:toDate AS date)
                   ))
                 """;
 
         String filterClause =
                 """
                 WHERE r.deleted_at IS NULL
-                  AND (:repairStatus IS NULL OR r.repair_status = :repairStatus)
+                  AND (CAST(:repairStatus AS varchar) IS NULL OR r.repair_status = CAST(:repairStatus AS varchar))
                 """
                         + dateFilter;
 
